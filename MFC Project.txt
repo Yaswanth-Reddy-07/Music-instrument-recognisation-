@@ -1,0 +1,184 @@
+### Applications of Linear Algebra in Machine Learning: Comprehensive Reports and Code
+
+---
+
+#### **1. Dimensionality Reduction and Feature Extraction: Principal Component Analysis (PCA)**
+
+**Theoretical Report:**
+Principal Component Analysis (PCA) is a dimensionality reduction technique that projects high-dimensional data onto a lower-dimensional subspace. It identifies the directions (principal components) that maximize the variance in the data. By focusing on the top principal components, PCA reduces noise and computational complexity while retaining meaningful data patterns.
+
+- **Mathematics of PCA:**
+  - Data matrix \( X \) (mean-centered).
+  - Compute covariance matrix \( C = \frac{1}{n} X^T X \).
+  - Perform eigen decomposition on \( C \): \( C = Q \Lambda Q^T \), where \( Q \) contains eigenvectors and \( \Lambda \) is the diagonal matrix of eigenvalues.
+  - Select top-k eigenvectors to form a projection matrix.
+
+- **Applications:**
+  - Image recognition, text processing, and exploratory data analysis.
+
+**Python Code:**
+```python
+import numpy as np
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+
+# Generate synthetic data
+np.random.seed(42)
+data = np.random.rand(100, 5)  # 100 samples, 5 features
+
+# Apply PCA
+pca = PCA(n_components=2)
+data_reduced = pca.fit_transform(data)
+
+# Visualize
+plt.scatter(data_reduced[:, 0], data_reduced[:, 1])
+plt.title('PCA Reduced Data')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.show()
+```
+
+---
+
+#### **2. Optimization in Neural Networks: Weight Matrix Factorization Using SVD**
+
+**Theoretical Report:**
+Singular Value Decomposition (SVD) is used to optimize neural networks by factorizing weight matrices into three components: \( W = U \Sigma V^T \). This decomposition allows pruning or compression of the network by retaining only significant singular values, thus reducing storage and computation requirements.
+
+- **Mathematics of SVD:**
+  - Given matrix \( W \), decompose as \( W = U \Sigma V^T \), where:
+    - \( U \): Left singular vectors.
+    - \( \Sigma \): Diagonal matrix of singular values.
+    - \( V^T \): Right singular vectors.
+
+**Python Code:**
+```python
+import numpy as np
+
+# Random weight matrix
+np.random.seed(42)
+W = np.random.rand(4, 4)
+
+# Perform SVD
+U, S, Vt = np.linalg.svd(W)
+
+# Reconstruct matrix with reduced singular values
+k = 2  # Number of singular values to keep
+S_reduced = np.zeros_like(W)
+np.fill_diagonal(S_reduced, S[:k])
+W_reduced = U @ S_reduced @ Vt
+
+print("Original Matrix:", W)
+print("Reconstructed Matrix:", W_reduced)
+```
+
+---
+
+#### **3. Collaborative Filtering for Recommendations: Matrix Factorization**
+
+**Theoretical Report:**
+Matrix factorization techniques decompose a user-item interaction matrix into lower-dimensional matrices that capture latent features. This allows predicting missing entries (e.g., user ratings) and making personalized recommendations.
+
+- **Mathematics of Matrix Factorization:**
+  - Given matrix \( R \), decompose into \( U \) and \( V \) such that \( R \approx U \times V^T \).
+  - Optimize using methods like Alternating Least Squares (ALS).
+
+**Python Code:**
+```python
+import numpy as np
+from sklearn.decomposition import TruncatedSVD
+
+# User-item interaction matrix
+ratings = np.array([
+    [5, 3, 0, 1],
+    [4, 0, 0, 1],
+    [1, 1, 0, 5],
+    [0, 0, 5, 4],
+    [0, 3, 4, 5]
+])
+
+# Perform matrix factorization
+svd = TruncatedSVD(n_components=2)
+U = svd.fit_transform(ratings)
+V = svd.components_
+reconstructed = np.dot(U, V)
+
+print("Original Matrix:\n", ratings)
+print("Reconstructed Matrix:\n", reconstructed)
+```
+
+---
+
+#### **4. Graph-Based Learning and Spectral Clustering**
+
+**Theoretical Report:**
+Spectral clustering uses eigenvalues of the graph Laplacian matrix to partition nodes into clusters. It transforms the clustering problem into a graph partitioning problem, leveraging linear algebra to find optimal solutions.
+
+- **Mathematics of Spectral Clustering:**
+  - Construct graph adjacency matrix \( A \).
+  - Compute graph Laplacian \( L = D - A \), where \( D \) is the degree matrix.
+  - Perform eigen decomposition of \( L \) and use the eigenvectors for clustering.
+
+**Python Code:**
+```python
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.datasets import make_blobs
+from sklearn.metrics import pairwise_distances
+
+# Create synthetic data
+X, _ = make_blobs(n_samples=100, centers=3, random_state=42)
+
+# Compute adjacency matrix (similarity matrix)
+adjacency_matrix = np.exp(-pairwise_distances(X, metric='euclidean') ** 2)
+
+# Compute degree matrix
+degree_matrix = np.diag(np.sum(adjacency_matrix, axis=1))
+
+# Compute Laplacian matrix
+laplacian_matrix = degree_matrix - adjacency_matrix
+
+# Perform eigen decomposition
+eigenvalues, eigenvectors = np.linalg.eigh(laplacian_matrix)
+
+# Use first k eigenvectors for clustering
+k = 3
+eigenvector_subset = eigenvectors[:, :k]
+clusters = KMeans(n_clusters=k).fit_predict(eigenvector_subset)
+
+print("Clusters:", clusters)
+```
+
+---
+
+#### **5. Solving Systems of Linear Equations in Regression Models**
+
+**Theoretical Report:**
+Linear regression can be solved efficiently using the normal equation: \( \theta = (X^T X)^{-1} X^T y \). This approach leverages matrix operations to find the optimal parameter vector that minimizes the squared error.
+
+- **Mathematics of the Normal Equation:**
+  - Minimize \( J(\theta) = ||X\theta - y||^2 \).
+  - Solution: \( \theta = (X^T X)^{-1} X^T y \).
+
+**Python Code:**
+```python
+import numpy as np
+
+# Generate synthetic data
+np.random.seed(42)
+X = np.random.rand(100, 2)  # 100 samples, 2 features
+y = 3 * X[:, 0] + 2 * X[:, 1] + np.random.randn(100)  # Linear relationship with noise
+
+# Add bias term
+X = np.c_[np.ones(X.shape[0]), X]  # Add column of ones for bias
+
+# Solve using normal equation
+theta = np.linalg.inv(X.T @ X) @ X.T @ y
+
+print("Optimal Parameters (Theta):", theta)
+```
+
+---
+
+This document combines theoretical understanding with practical implementation, showcasing the power of linear algebra in machine learning across different domains.
+
